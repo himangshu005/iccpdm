@@ -1,15 +1,17 @@
 /**
  * MongoDB Service - Database abstraction layer for MongoDB Atlas
  * Replaces firebase-service.js with equivalent MongoDB operations
- * 
+ *
  * Provides identical function signatures for seamless backend integration
  */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // MongoDB Connection URI from environment
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://medicine-admin:password@medicine-detector.mongodb.net/?retryWrites=true&w=majority';
-const DB_NAME = process.env.MONGODB_DATABASE || 'medicine_db';
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://medicine:medicine2003@cluster0.t2vdyg7.mongodb.net/medicineDB?retryWrites=true&w=majority&appName=Cluster0";
+const DB_NAME = process.env.MONGODB_DATABASE || "medicineDB";
 
 // Define Schemas
 const medicineSchema = new mongoose.Schema({
@@ -24,16 +26,16 @@ const medicineSchema = new mongoose.Schema({
   rgbRef: {
     r: Number,
     g: Number,
-    b: Number
+    b: Number,
   },
   rgbTol: {
     r: Number,
     g: Number,
-    b: Number
+    b: Number,
   },
   scanCount: { type: Number, default: 0 },
   lastScanDate: String,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 const scanHistorySchema = new mongoose.Schema({
@@ -45,10 +47,10 @@ const scanHistorySchema = new mongoose.Schema({
   rgbValue: {
     r: Number,
     g: Number,
-    b: Number
+    b: Number,
   },
   finalResult: String,
-  timestamp: { type: Date, default: Date.now, index: -1 }
+  timestamp: { type: Date, default: Date.now, index: -1 },
 });
 
 const recalledBatchSchema = new mongoose.Schema({
@@ -56,7 +58,7 @@ const recalledBatchSchema = new mongoose.Schema({
   reason: String,
   recalledDate: String,
   medicines: [String],
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 // Create Models
@@ -71,7 +73,7 @@ let isConnected = false;
 async function initializeMongoDB() {
   try {
     if (isConnected) {
-      console.log('✓ MongoDB already connected');
+      console.log("✓ MongoDB already connected");
       return;
     }
 
@@ -82,14 +84,22 @@ async function initializeMongoDB() {
     });
 
     // Create models
-    Medicine = mongoose.model('Medicine', medicineSchema, 'medicines');
-    ScanHistory = mongoose.model('ScanHistory', scanHistorySchema, 'scanHistory');
-    RecalledBatch = mongoose.model('RecalledBatch', recalledBatchSchema, 'recalledBatches');
+    Medicine = mongoose.model("Medicine", medicineSchema, "medicines");
+    ScanHistory = mongoose.model(
+      "ScanHistory",
+      scanHistorySchema,
+      "scanHistory",
+    );
+    RecalledBatch = mongoose.model(
+      "RecalledBatch",
+      recalledBatchSchema,
+      "recalledBatches",
+    );
 
     isConnected = true;
     console.log(`✓ MongoDB connected to ${DB_NAME}`);
   } catch (error) {
-    console.error('✗ MongoDB connection failed:', error.message);
+    console.error("✗ MongoDB connection failed:", error.message);
     throw error;
   }
 }
@@ -101,12 +111,12 @@ async function initializeMongoDB() {
  */
 async function getMedicineRecord(uid) {
   try {
-    if (!Medicine) throw new Error('MongoDB not initialized');
-    
+    if (!Medicine) throw new Error("MongoDB not initialized");
+
     const medicine = await Medicine.findOne({ uid });
     return medicine ? medicine.toObject() : null;
   } catch (error) {
-    console.error('Error fetching medicine:', error.message);
+    console.error("Error fetching medicine:", error.message);
     throw error;
   }
 }
@@ -118,8 +128,8 @@ async function getMedicineRecord(uid) {
  */
 async function addScanRecord(scanData) {
   try {
-    if (!ScanHistory) throw new Error('MongoDB not initialized');
-    
+    if (!ScanHistory) throw new Error("MongoDB not initialized");
+
     const scanRecord = new ScanHistory({
       uid: scanData.uid,
       rfidStatus: scanData.rfidStatus,
@@ -128,17 +138,17 @@ async function addScanRecord(scanData) {
       rgbResult: scanData.rgbResult,
       rgbValue: scanData.rgbValue,
       finalResult: scanData.finalResult,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     const saved = await scanRecord.save();
     return {
       success: true,
       scanId: saved._id.toString(),
-      timestamp: saved.timestamp
+      timestamp: saved.timestamp,
     };
   } catch (error) {
-    console.error('Error adding scan record:', error.message);
+    console.error("Error adding scan record:", error.message);
     throw error;
   }
 }
@@ -150,20 +160,20 @@ async function addScanRecord(scanData) {
  */
 async function updateScanCount(uid) {
   try {
-    if (!Medicine) throw new Error('MongoDB not initialized');
-    
+    if (!Medicine) throw new Error("MongoDB not initialized");
+
     const updated = await Medicine.findOneAndUpdate(
       { uid },
       {
         $inc: { scanCount: 1 },
-        $set: { lastScanDate: new Date().toISOString() }
+        $set: { lastScanDate: new Date().toISOString() },
       },
-      { new: true }
+      { new: true },
     );
 
     return updated ? updated.toObject() : null;
   } catch (error) {
-    console.error('Error updating scan count:', error.message);
+    console.error("Error updating scan count:", error.message);
     throw error;
   }
 }
@@ -174,12 +184,12 @@ async function updateScanCount(uid) {
  */
 async function getAllMedicines() {
   try {
-    if (!Medicine) throw new Error('MongoDB not initialized');
-    
+    if (!Medicine) throw new Error("MongoDB not initialized");
+
     const medicines = await Medicine.find({});
-    return medicines.map(m => m.toObject());
+    return medicines.map((m) => m.toObject());
   } catch (error) {
-    console.error('Error fetching all medicines:', error.message);
+    console.error("Error fetching all medicines:", error.message);
     throw error;
   }
 }
@@ -191,12 +201,12 @@ async function getAllMedicines() {
  */
 async function isRecalled(batchId) {
   try {
-    if (!RecalledBatch) throw new Error('MongoDB not initialized');
-    
+    if (!RecalledBatch) throw new Error("MongoDB not initialized");
+
     const batch = await RecalledBatch.findOne({ batchId });
     return batch ? batch.toObject() : null;
   } catch (error) {
-    console.error('Error checking recalled batch:', error.message);
+    console.error("Error checking recalled batch:", error.message);
     throw error;
   }
 }
@@ -208,15 +218,15 @@ async function isRecalled(batchId) {
  */
 async function getRecentScans(limit = 20) {
   try {
-    if (!ScanHistory) throw new Error('MongoDB not initialized');
-    
+    if (!ScanHistory) throw new Error("MongoDB not initialized");
+
     const scans = await ScanHistory.find({})
       .sort({ timestamp: -1 })
       .limit(limit);
-    
-    return scans.map(s => s.toObject());
+
+    return scans.map((s) => s.toObject());
   } catch (error) {
-    console.error('Error fetching recent scans:', error.message);
+    console.error("Error fetching recent scans:", error.message);
     throw error;
   }
 }
@@ -227,29 +237,29 @@ async function getRecentScans(limit = 20) {
  */
 async function getStatisticsSummary() {
   try {
-    if (!ScanHistory) throw new Error('MongoDB not initialized');
-    
+    if (!ScanHistory) throw new Error("MongoDB not initialized");
+
     const stats = await ScanHistory.aggregate([
       {
         $group: {
-          _id: '$finalResult',
-          count: { $sum: 1 }
-        }
-      }
+          _id: "$finalResult",
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const result = {
       totalScans: 0,
       genuineCount: 0,
       suspectCount: 0,
-      rejectedCount: 0
+      rejectedCount: 0,
     };
 
     for (const stat of stats) {
       const statusMap = {
-        'GENUINE': 'genuineCount',
-        'SUSPECT': 'suspectCount',
-        'REJECTED': 'rejectedCount'
+        GENUINE: "genuineCount",
+        SUSPECT: "suspectCount",
+        REJECTED: "rejectedCount",
       };
 
       if (statusMap[stat._id]) {
@@ -260,7 +270,7 @@ async function getStatisticsSummary() {
 
     return result;
   } catch (error) {
-    console.error('Error fetching statistics:', error.message);
+    console.error("Error fetching statistics:", error.message);
     throw error;
   }
 }
@@ -273,26 +283,26 @@ async function healthCheck() {
   try {
     if (!isConnected || !mongoose.connection.db) {
       return {
-        status: 'disconnected',
+        status: "disconnected",
         database: DB_NAME,
-        message: 'MongoDB not connected'
+        message: "MongoDB not connected",
       };
     }
 
     // Ping MongoDB
     await mongoose.connection.db.admin().ping();
-    
+
     return {
-      status: 'connected',
+      status: "connected",
       database: DB_NAME,
-      message: 'MongoDB Atlas connection verified'
+      message: "MongoDB Atlas connection verified",
     };
   } catch (error) {
-    console.error('Health check failed:', error.message);
+    console.error("Health check failed:", error.message);
     return {
-      status: 'error',
+      status: "error",
       database: DB_NAME,
-      message: error.message
+      message: error.message,
     };
   }
 }
@@ -305,10 +315,10 @@ async function disconnect() {
     if (isConnected) {
       await mongoose.disconnect();
       isConnected = false;
-      console.log('✓ MongoDB disconnected');
+      console.log("✓ MongoDB disconnected");
     }
   } catch (error) {
-    console.error('Error disconnecting MongoDB:', error.message);
+    console.error("Error disconnecting MongoDB:", error.message);
     throw error;
   }
 }
@@ -324,5 +334,5 @@ module.exports = {
   getRecentScans,
   getStatisticsSummary,
   healthCheck,
-  disconnect
+  disconnect,
 };
