@@ -1,6 +1,6 @@
 // src/components/RecentScans.tsx
-import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
+
+import { formatDistanceToNow } from "date-fns";
 
 interface Scan {
   id: string;
@@ -22,35 +22,37 @@ interface RecentScansProps {
 
 const getResultColor = (result: string): string => {
   switch (result?.toUpperCase()) {
-    case 'GENUINE':
-      return 'bg-green-50 border-l-4 border-l-green-500';
-    case 'SUSPECT':
-      return 'bg-yellow-50 border-l-4 border-l-yellow-500';
-    case 'COUNTERFEIT':
-    case 'REJECTED':
-    case 'UNREGISTERED':
-    case 'EXPIRED':
-    case 'RECALLED':
-      return 'bg-red-50 border-l-4 border-l-red-500';
+    case "GENUINE":
+      return "bg-green-50 border-l-4 border-l-green-500";
+    case "SUSPECT":
+      return "bg-yellow-50 border-l-4 border-l-yellow-500";
+    case "COUNTERFEIT":
+    case "REJECTED":
+    case "UNREGISTERED":
+    case "EXPIRED":
+    case "RECALLED":
+      return "bg-red-50 border-l-4 border-l-red-500";
     default:
-      return 'bg-gray-50 border-l-4 border-l-gray-300';
+      return "bg-gray-50 border-l-4 border-l-gray-300";
   }
 };
 
-const getResultBadge = (result: string): { bg: string; text: string; icon: string } => {
+const getResultBadge = (
+  result: string,
+): { bg: string; text: string; icon: string } => {
   switch (result?.toUpperCase()) {
-    case 'GENUINE':
-      return { bg: 'bg-green-100', text: 'text-green-800', icon: '✓' };
-    case 'SUSPECT':
-      return { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: '⚠️' };
-    case 'COUNTERFEIT':
-    case 'REJECTED':
-    case 'UNREGISTERED':
-    case 'EXPIRED':
-    case 'RECALLED':
-      return { bg: 'bg-red-100', text: 'text-red-800', icon: '✗' };
+    case "GENUINE":
+      return { bg: "bg-green-100", text: "text-green-800", icon: "✓" };
+    case "SUSPECT":
+      return { bg: "bg-yellow-100", text: "text-yellow-800", icon: "⚠️" };
+    case "COUNTERFEIT":
+    case "REJECTED":
+    case "UNREGISTERED":
+    case "EXPIRED":
+    case "RECALLED":
+      return { bg: "bg-red-100", text: "text-red-800", icon: "✗" };
     default:
-      return { bg: 'bg-gray-100', text: 'text-gray-800', icon: '?' };
+      return { bg: "bg-gray-100", text: "text-gray-800", icon: "?" };
   }
 };
 
@@ -77,27 +79,37 @@ export default function RecentScans({
                 key={scan.id}
                 onClick={() => onSelectScan(scan)}
                 className={`p-4 cursor-pointer hover:bg-gray-50 transition ${getResultColor(
-                  scan.finalResult
-                )} ${isSelected ? 'bg-blue-100 border-l-4 border-l-blue-500' : ''}`}
+                  scan.finalResult,
+                )} ${isSelected ? "bg-blue-100 border-l-4 border-l-blue-500" : ""}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-mono text-sm font-semibold text-gray-800">{scan.uid}</p>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}>
+                      <p className="font-mono text-sm font-semibold text-gray-800">
+                        {scan.uid}
+                      </p>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${badge.bg} ${badge.text}`}
+                      >
                         {badge.icon} {scan.finalResult}
                       </span>
                     </div>
                     {scan.medicineName && (
-                      <p className="text-sm text-gray-600 mt-1">{scan.medicineName}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {scan.medicineName}
+                      </p>
                     )}
                     {scan.batchId && (
-                      <p className="text-xs text-gray-500 mt-1">Batch: {scan.batchId}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Batch: {scan.batchId}
+                      </p>
                     )}
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-500">
-                      {formatDistanceToNow(new Date(scan.timestamp), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(scan.timestamp), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                 </div>
